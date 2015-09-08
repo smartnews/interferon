@@ -9,6 +9,9 @@ module Interferon::Destinations
     ALERT_KEY = 'This alert was created via the alerts framework'
 
     def initialize(options)
+      options['app_key'] ||= ENV['DD_APP_KEY']
+      options['api_key'] ||= ENV['DD_API_KEY']
+
       %w{app_key api_key}.each do |req|
         unless options[req]
           raise ArgumentError, "missing required argument #{req}"
