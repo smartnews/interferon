@@ -20,6 +20,7 @@ module Interferon::Destinations
 
       @dog = Dogapi::Client.new(options['api_key'], options['app_key'])
       @dry_run = !!options['dry_run']
+      @ignore_silenced = options['ignore_silenced'] || false
       @existing_alerts = nil
 
       # create datadog alerts 10 at a time
@@ -70,11 +71,14 @@ module Interferon::Destinations
       alert_opts = {
         :name => alert['name'],
         :message => message,
-        :silenced => alert['silenced'] || alert['silenced_until'] > Time.now,
         :notify_no_data => alert['notify_no_data'],
         :notify_audit => alert['notify_audit'],
         :timeout_h => nil,
       }
+
+      unless @ignore_silenced
+        alert_opts[:silenced] = alert['silenced'] || alert['silenced_until'] > Time.now
+      end
 
       # allow an optional timeframe for "no data" alerts to be specified
       # (this feature is supported, even though it's not documented)
