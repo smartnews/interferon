@@ -37,7 +37,11 @@ module Interferon::Destinations
     def existing_alerts
       unless @existing_alerts
         resp = @dog.get_all_monitors()
+        status = resp[0]
         alerts = resp[1]
+        unless status == "200" and alerts.size > 0
+          raise RuntimeError, "Datadog API doesn't return alerts. See http://status.datadoghq.com/"
+        end
 
         # key alerts by name
         @existing_alerts = Hash[alerts.map{ |a| [a['name'], a] }]
